@@ -1,12 +1,11 @@
 package edu.gatech.gradeseer.examples.gatech_cs_3600_grading;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 
 import edu.gatech.gradeseer.fileio.FileIOUtil;
-import edu.gatech.gradeseer.fileio.extensions.BaseDirectorySubmissionIterator;
-import edu.gatech.gradeseer.fileio.extensions.CloneableSubmissionIterator;
+import edu.gatech.gradeseer.fileio.filefilters.FileNameFilter;
+import edu.gatech.gradeseer.fileio.iteratorimpl.BaseDirectorySubmissionIterator;
+import edu.gatech.gradeseer.fileio.iteratorimpl.CloneableSubmissionIterator;
 import edu.gatech.gradeseer.gradingmodel.Assignment;
 import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
 import edu.gatech.gradeseer.gradingmodel.Student;
@@ -14,13 +13,14 @@ import edu.gatech.gradeseer.gradingmodel.Student;
 /**
  * Iterator to go through the TSquare formatted folders of student submissions.
  * 
- * TODO: add supported to matching student folders to students in StudentSet
+ * TODO: add supported to matching student folders to students in StudentSet TODO: could probably extract some logic from
+ * here to a superclass (ie using FileIOUtil to find files from assignment).
  * 
  * Date modified: Sep 14, 2014
  * 
  * @author Andrey Kurenkov
  */
-public class TSquareSubmissionIterator extends BaseDirectorySubmissionIterator {
+public class TsquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 	private String[] instructorNames;
 	private Assignment assignment;
 
@@ -28,7 +28,7 @@ public class TSquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 	 * 
 	 * @param dir
 	 */
-	public TSquareSubmissionIterator(File dir, String[] instructorNames, Assignment assignment) {
+	public TsquareSubmissionIterator(File dir, String[] instructorNames, Assignment assignment) {
 		super(dir);
 		this.instructorNames = instructorNames;
 		this.assignment = assignment;
@@ -54,7 +54,7 @@ public class TSquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 			if (!filesDir.exists())
 				return false;
 		}
-		return true;
+		return false;
 	}
 
 	/*
@@ -67,37 +67,9 @@ public class TSquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 		int nameDelim = dir.getName().indexOf("(");
 		String studentName = dir.getName().substring(0, nameDelim);
 		File filesDir = new File(dir.getAbsolutePath(), "Submission attachment(s)");
-		// TODO: sort of hacky
 		AssignmentSubmission submission = new AssignmentSubmission(new Student(studentName, null));
-		File[] compressedFiles = filesDir.listFiles(new FileFilter() {
-
-			@Override
-			public boolean accept(File file) {
-				return FileIOUtil.isCompressed(file);
-			}
-
-		});
-		for (File file : compressedFiles) {
-			try {
-				FileIOUtil.decompress(file, file.getParentFile());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			file.delete();
-		}
-		for (File file : filesDir.listFiles()) {
-			submission.addFile(file);
-		}
-
-		/**
-		 * try {// logic to unpack the unzipped files into what we need. Yeah, I was lazy. for (File file :
-		 * filesDir.listFiles()) { if (checkCodeFiles(file)) { studentFiles.add(file); } else if (file.isDirectory()) {
-		 * badSubmit = true; for (File innerFile : file.listFiles()) { if (checkCodeFiles(innerFile)) {
-		 * studentFiles.add(innerFile); } else if (innerFile.isDirectory()) {// some people... for (File anotherFile :
-		 * innerFile.listFiles()) { if (checkCodeFiles(anotherFile)) { studentFiles.add(anotherFile); }// if contains }// for
-		 * anotherfile }// if innerfile is dir } } } } catch (Exception e) { e.printStackTrace();
-		 * println("\tBad submission - python files not found"); continue; }
-		 */
+		submission.setSubmissionFiles(FileIOUtil.recursiveFileFind(filesDir, new FileNameFilter(assignment.getFileNames()),
+				true, true));
 		submission.setSubmissionDirectory(dir);
 		return submission;
 	}
@@ -113,6 +85,6 @@ public class TSquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 	 */
 	@Override
 	public CloneableSubmissionIterator makeClone() {
-		return new TSquareSubmissionIterator(super.baseDir, instructorNames, assignment);
+		return new TsquareSubmissionIterator(super.baseDir, instructorNames, assignment);
 	}
 }

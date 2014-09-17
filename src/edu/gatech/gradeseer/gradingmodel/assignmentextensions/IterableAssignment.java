@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.gradingmodel.extensions;
+package edu.gatech.gradeseer.gradingmodel.assignmentextensions;
 
 import java.util.List;
 

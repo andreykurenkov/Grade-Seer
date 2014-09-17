@@ -1,9 +1,9 @@
-package edu.gatech.gradeseer.gradingmodel.extensions;
+package edu.gatech.gradeseer.gradingmodel.assignmentextensions;
 
 import java.util.Iterator;
 import java.util.List;
 
-import edu.gatech.gradeseer.fileio.extensions.CloneableSubmissionIterator;
+import edu.gatech.gradeseer.fileio.iteratorimpl.CloneableSubmissionIterator;
 import edu.gatech.gradeseer.gradingmodel.AssignmentProblem;
 import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
 

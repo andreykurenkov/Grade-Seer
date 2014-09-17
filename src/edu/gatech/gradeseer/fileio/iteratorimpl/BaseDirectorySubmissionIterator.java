@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.fileio.extensions;
+package edu.gatech.gradeseer.fileio.iteratorimpl;
 
 import java.io.File;
 import java.util.NoSuchElementException;
@@ -73,7 +73,7 @@ public abstract class BaseDirectorySubmissionIterator implements CloneableSubmis
 		while (atFile < dirFiles.length && !isStudentDir(dirFiles[atFile])) {
 			atFile++;
 		}
-		return getStudentSubmission(dirFiles[atFile]);
+		return getStudentSubmission(dirFiles[atFile++]);
 	}
 
 	/*

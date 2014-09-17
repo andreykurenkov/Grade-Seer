@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Scanner;
 
-import edu.gatech.gradeseer.autograding.extensions.ProcessAssignmentProblemGrader;
+import edu.gatech.gradeseer.autograding.problemgraderimpl.ProcessAssignmentProblemGrader;
 import edu.gatech.gradeseer.gradingmodel.Assignment;
 import edu.gatech.gradeseer.gradingmodel.AssignmentProblem;
 import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
@@ -36,8 +36,8 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 	 * edu.gatech.gradeseer.gradingmodel.StudentSubmission, java.util.List)
 	 */
 	@Override
-	public ProcessBuilder getProcessBuilder(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission,
-			List<File> files) {
+	public ProcessBuilder getProcessBuilder(Assignment assignment, AssignmentProblem problem,
+			AssignmentSubmission submission, List<File> files) {
 		return new ProcessBuilder("python", "autograder.py", "-q", problem.getName());
 	}
 
@@ -52,7 +52,12 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 	@Override
 	public double gradeProcessOutput(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission,
 			List<File> files, String out) {
-		int score = -1;
+		if (submission.getSubmissionFiles().size() < assignment.getFileNames().size()) {
+			if (super.currentGradingSubmission != submission)
+				submission.addToComments("Did not submit enough files, skipping.");
+			return 0;
+		}
+		int score = 0;
 		int max = -1;
 		Scanner scan = new Scanner(out);
 		String scoreLine = "Question " + problem.getName() + ": ";
@@ -64,10 +69,9 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 			}
 		}// while
 		scan.close();
-		if (max != problem.getMaxGrade()) {
-			System.err.println("Max of autograder does not match given max.");
+		if (max == -1) {
+			System.err.println("Error in autograder while grading " + problem.getName());
 		}
 		return score;
 	}
-
 }

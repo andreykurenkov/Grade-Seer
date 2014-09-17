@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.fileio.extensions;
+package edu.gatech.gradeseer.fileio.iteratorimpl;
 
 import edu.gatech.gradeseer.fileio.SubmissionIterator;
 

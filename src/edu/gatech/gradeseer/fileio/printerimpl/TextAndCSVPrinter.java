@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.fileio.extensions;
+package edu.gatech.gradeseer.fileio.printerimpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,7 +56,7 @@ public class TextAndCSVPrinter implements AssignmentGradingFilePrinter {
 				build.append("\t\t" + comment + "\n");
 		}
 		for (String comment : toFormat.getComments())
-			build.append("\t" + toFormat.getComments() + "\n");
+			build.append("\t" + comment + "\n");
 		return build.toString();
 	}
 
@@ -133,7 +133,9 @@ public class TextAndCSVPrinter implements AssignmentGradingFilePrinter {
 	 */
 	@Override
 	public void close() {
-		txtWriter.close();
-		csvWriter.close();
+		if (printToCSV)
+			csvWriter.close();
+		if (printToTXT)
+			txtWriter.close();
 	}
 }

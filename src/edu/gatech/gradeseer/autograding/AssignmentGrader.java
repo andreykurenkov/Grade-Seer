@@ -11,7 +11,7 @@ import edu.gatech.gradeseer.fileio.SubmissionIterator;
 import edu.gatech.gradeseer.gradingmodel.Assignment;
 import edu.gatech.gradeseer.gradingmodel.AssignmentProblem;
 import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
-import edu.gatech.gradeseer.gradingmodel.extensions.IterableAssignment;
+import edu.gatech.gradeseer.gradingmodel.assignmentextensions.IterableAssignment;
 
 /**
  * Flexible grader for a large number of student submissions.

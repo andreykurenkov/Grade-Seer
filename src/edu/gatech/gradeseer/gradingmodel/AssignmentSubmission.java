@@ -25,6 +25,7 @@ public class AssignmentSubmission {
 		this.student = student;
 		this.submissionFiles = new ArrayList<File>();
 		this.grades = new HashMap<AssignmentProblem, Double>();
+		this.problemComments = new HashMap<AssignmentProblem, List<String>>();
 		this.comments = new ArrayList<String>();
 	}
 
@@ -68,6 +69,10 @@ public class AssignmentSubmission {
 	public void addFile(File toAdd) {
 		if (toAdd != null && !submissionFiles.contains(toAdd))
 			this.submissionFiles.add(toAdd);
+	}
+
+	public void setSubmissionFiles(List<File> setTo) {
+		submissionFiles = setTo;
 	}
 
 	public List<File> getSubmissionFiles() {

@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.autograding.extensions;
+package edu.gatech.gradeseer.autograding.problemgraderimpl;
 
 import java.io.File;
 import java.io.FileFilter;

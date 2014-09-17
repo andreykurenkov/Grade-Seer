@@ -1,4 +1,4 @@
-package edu.gatech.gradeseer.autograding.extensions;
+package edu.gatech.gradeseer.autograding.problemgraderimpl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +28,8 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 	 */
 	public ProcessAssignmentProblemGrader(File dir, double timeLimit, boolean outputToFile) {
 		super(dir);
+		this.timeLimit = timeLimit;
+		this.outputToFile = outputToFile;
 	}
 
 	/*
@@ -60,27 +62,25 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 			process = builder.start();
 			if (!outputToFile)
 				reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("oh no");
+			e.printStackTrace();
 			done = true;
 		}
-		if (!done) {
-			while (timeElapsed < timeLimit && !done) {
-				try {
-					while ((charc = reader.read()) != -1) {
-						// TODO: check if correct
-					}
+		while (timeElapsed < timeLimit && !done) {
+			try {
+				while (!outputToFile && (charc = reader.read()) != -1) {
 					processOut.append(Character.toChars(charc));
-					process.exitValue();
-					done = true;
-				} catch (Exception e) {
-					done = false;
+					// TODO: check if correct
 				}
-
-				timeElapsed = (System.currentTimeMillis() - millStart) / 1000;
+				process.exitValue();
+				done = true;
+			} catch (Exception e) {
+				done = false;
 			}
-			process.destroy();
+			timeElapsed = (System.currentTimeMillis() - millStart) / 1000;
 		}
+		process.destroy();
 
 		if (timeElapsed > timeLimit) {
 			submission.addCommentForProblem(problem, "Violated time restriction for question " + problem.getName()
@@ -88,7 +88,6 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 			return 0;
 		}
 		try {
-
 			if (outputToFile) {
 				reader = new BufferedReader(new FileReader(logOut));
 				while ((charc = reader.read()) != -1) {
