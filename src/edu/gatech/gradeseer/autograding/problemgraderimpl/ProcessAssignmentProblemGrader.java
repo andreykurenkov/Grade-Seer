@@ -52,7 +52,7 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 		}
 		StringBuilder processOut = new StringBuilder();
 		long millStart = System.currentTimeMillis();
-		long timeElapsed = 0; // seconds
+		double timeElapsed = 0; // seconds
 
 		Process process = null;
 		BufferedReader reader = null;
@@ -78,11 +78,11 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 			} catch (Exception e) {
 				done = false;
 			}
-			timeElapsed = (System.currentTimeMillis() - millStart) / 1000;
+			timeElapsed = (System.currentTimeMillis() - millStart) / 1000.0;
 		}
 		process.destroy();
 
-		if (timeElapsed > timeLimit) {
+		if (timeElapsed >= timeLimit) {
 			submission.addCommentForProblem(problem, "Violated time restriction for question " + problem.getName()
 					+ " with time " + timeElapsed + "- autograder did not finish");
 			return 0;

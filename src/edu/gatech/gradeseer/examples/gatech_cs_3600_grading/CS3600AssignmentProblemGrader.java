@@ -53,8 +53,9 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 	public double gradeProcessOutput(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission,
 			List<File> files, String out) {
 		if (submission.getSubmissionFiles().size() < assignment.getFileNames().size()) {
-			if (super.currentGradingSubmission != submission)
-				submission.addToComments("Did not submit enough files, skipping.");
+			if (submission.getComments().size() < 1)
+				submission.addToComments("Did not submit enough files (only " + submission.getSubmissionFiles().size()
+						+ "), skipping.");
 			return 0;
 		}
 		int score = 0;

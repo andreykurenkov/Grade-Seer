@@ -26,7 +26,7 @@ public class TextAndCSVPrinter implements AssignmentGradingFilePrinter {
 		this.txtOutput = txtOutput;
 		this.csvOutput = csvOutput;
 		printToTXT = txtOutput != null;
-		printToCSV = csvWriter != null;
+		printToCSV = csvOutput != null;
 	}
 
 	public void printToCSV(String toPrint) {
@@ -62,17 +62,18 @@ public class TextAndCSVPrinter implements AssignmentGradingFilePrinter {
 
 	protected String formatOuputToCSV(AssignmentSubmission toFormat) {
 		StringBuilder build = new StringBuilder();
-		build.append("\n" + toFormat.getStudent().getName() + ",");
+		build.append("\n" + toFormat.getStudent().getName().replace(',', ' ') + ",");
 		for (AssignmentProblem problem : forAssignment.getProblems()) { // TODO error check for it being there
 			build.append(toFormat.getGrades().get(problem));
 			build.append(",");
 		}
 		build.append(toFormat.getTotal() + ",");
 		for (AssignmentProblem problem : forAssignment.getProblems()) { // TODO error check for it being there
-			build.append(Arrays.toString(toFormat.getProblemComments(problem).toArray()).replace(',', '|'));
+			build.append(Arrays.toString(toFormat.getProblemComments(problem).toArray()).replace(',', '|')
+					.replaceAll("[|]", ""));
 			build.append(",");
 		}
-		build.append(Arrays.toString(toFormat.getComments().toArray()).replace(',', '|'));
+		build.append(Arrays.toString(toFormat.getComments().toArray()).replace(',', '|').replaceAll("[|]", ""));
 		return build.toString();
 
 	}

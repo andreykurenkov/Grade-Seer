@@ -40,7 +40,7 @@ public abstract class DirectoryAssignmentProblemGrader implements AssignmentProb
 	 */
 	@Override
 	public double gradeQuestion(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission) {
-		if (currentGradingSubmission != submission) {
+		if (problem == assignment.getProblems().get(assignment.getProblems().size() - 1)) {
 			File[] delete = gradingDirectory.listFiles(new FileFilter() {
 
 				@Override
@@ -51,7 +51,8 @@ public abstract class DirectoryAssignmentProblemGrader implements AssignmentProb
 			});
 			for (File file : delete)
 				file.delete();
-
+		}
+		if (currentGradingSubmission != submission) {
 			currentGradingSubmission = submission;
 			ArrayList<File> copiedFiles = new ArrayList<File>();
 			for (File file : submission.getSubmissionFiles()) {
@@ -65,7 +66,7 @@ public abstract class DirectoryAssignmentProblemGrader implements AssignmentProb
 		return gradeCopiedFiles(assignment, problem, submission, copiedFiles);
 	}
 
-	public abstract double gradeCopiedFiles(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission,
-			List<File> files);
+	public abstract double gradeCopiedFiles(Assignment assignment, AssignmentProblem problem,
+			AssignmentSubmission submission, List<File> files);
 
 }

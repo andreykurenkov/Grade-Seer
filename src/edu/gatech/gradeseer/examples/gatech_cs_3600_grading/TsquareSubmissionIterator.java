@@ -41,20 +41,18 @@ public class TsquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 	 */
 	@Override
 	protected boolean isStudentDir(File file) {
-		if (file.isDirectory()) { // student name directory
-			int nameDelim = file.getName().indexOf("(");
-			if (nameDelim == -1)
+		int nameDelim = file.getName().indexOf("(");
+		if (nameDelim == -1)
+			return false;
+		String studentName = file.getName().substring(0, nameDelim);
+		for (String instrName : instructorNames)
+			if (studentName.contains(instrName))
 				return false;
-			String studentName = file.getName().substring(0, nameDelim);
-			for (String instrName : instructorNames)
-				if (studentName.contains(instrName))
-					return false;
 
-			File filesDir = new File(file.getAbsolutePath(), "Submission attachment(s)");
-			if (!filesDir.exists())
-				return false;
-		}
-		return false;
+		File filesDir = new File(file.getAbsolutePath(), "Submission attachment(s)");
+		if (!filesDir.exists())
+			return false;
+		return true;
 	}
 
 	/*

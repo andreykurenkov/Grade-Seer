@@ -33,7 +33,7 @@ public class CS3600Project1Grader {
 		String[] instructorNames = { "Kurenkov", "Wang", "Clark", "Thomaz" };
 
 		ArrayList<AssignmentProblem> problems = new ArrayList<AssignmentProblem>();
-		CS3600AssignmentProblemGrader problemGrader = new CS3600AssignmentProblemGrader(gradeDir, 3.0, true);
+		CS3600AssignmentProblemGrader problemGrader = new CS3600AssignmentProblemGrader(gradeDir, 180.0, true);
 		HashMap<AssignmentProblem, AssignmentProblemGrader> map = new HashMap<AssignmentProblem, AssignmentProblemGrader>();
 		for (int i = 0; i < questions.length; i++) {
 			problems.add(new AssignmentProblem(questions[i], "Pacman problem", maxPoints[i]));
