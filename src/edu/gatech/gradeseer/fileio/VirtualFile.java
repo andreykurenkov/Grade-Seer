@@ -2,7 +2,11 @@ package edu.gatech.gradeseer.fileio;
 
 import java.io.File;
 
-/** This is a wrapper class which assigns a file a virtualAbsolutePath **/
+/**
+ * A wrapper class for File. It assigns virtualAbsolutePath to a file
+ * @author Amirreza Shaban
+ */
+
 public class VirtualFile extends File {
 	private String virtualAdr;
 

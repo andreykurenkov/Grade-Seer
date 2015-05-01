@@ -7,10 +7,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
 import edu.gatech.gradeseer.fileio.VirtualFile;
+
+/**
+ * A wrapper class for MOSS plagiarism detection.
+ * It sends all the file to the server and return a link to the result page.
+ * See http://zielke.it/moji/ for more details.
+ * @author Amirreza Shaban
+ */
 
 //http://zielke.it/moji/
 public class MOSS extends PlagiarismDetector {
@@ -36,8 +44,14 @@ public class MOSS extends PlagiarismDetector {
 		try {
 			// a list of students' source code files located in the prepared
 			// directory.
-			File[] sourceFiles = this.createDirectories();
-
+			List<VirtualFile> sourceFiles = this.createDirectories();
+			List<VirtualFile> baseFiles = this.getBaseFiles();
+			
+//			for(VirtualFile file: sourceFiles)
+//			{
+//				System.out.println("File name: " + file.getAbsolutePath());
+//			}
+			
 			// get a new socket client to communicate with the MOSS server.
 			SocketClient socketClient = new SocketClient();
 
@@ -55,7 +69,7 @@ public class MOSS extends PlagiarismDetector {
 			socketClient.run();
 
 			// upload all base files
-			for (File f : this.baseFiles) {
+			for (File f : baseFiles) {
 				socketClient.uploadBaseFile(f);
 			}
 
@@ -70,7 +84,7 @@ public class MOSS extends PlagiarismDetector {
 			// get URL with MOSS results and do something with it
 			URL results = socketClient.getResultURL();
 
-			return "Results available at " + results.toString();
+			return "Totally, " + sourceFiles.size() + " assignments and " + baseFiles.size() + " base files are submited.\n" + "Results is available at " + results.toString();
 
 		} catch (UnknownHostException e) {
 			throw new PlagiarismDetectorException(e.getMessage());
@@ -82,11 +96,22 @@ public class MOSS extends PlagiarismDetector {
 		}
 	}
 
-	private File[] createDirectories() throws IOException {
-		Vector<VirtualFile> sourceFiles = new Vector<VirtualFile>();
+	private List<VirtualFile> getBaseFiles() throws IOException {
+		Vector<VirtualFile> vBaseFiles = new Vector<VirtualFile>();
+
+		for (File file : baseFiles) {
+			vBaseFiles.add(new VirtualFile(MOSS.removeWhitespaces(file.getAbsolutePath()), file));			
+		}
+
+		return vBaseFiles;
+	}
+	
+	private List<VirtualFile> createDirectories() throws IOException {
+		List<VirtualFile> sourceFiles = new Vector<VirtualFile>();
 
 		Set<String> keySet = this.sourceMap.keySet();
 		for (String name : keySet) {
+
 			try {
 				File[] files = this.sourceMap.get(name);
 				for (File file : files) {
@@ -97,6 +122,10 @@ public class MOSS extends PlagiarismDetector {
 			}
 		}
 
-		return sourceFiles.toArray(new VirtualFile[sourceFiles.size()]);
+		return sourceFiles;
 	}
+	
+	 public static String removeWhitespaces(String name) {
+		 return name.replaceAll("\\s","");
+	 }
 }

@@ -3,8 +3,15 @@ package edu.gatech.gradeseer.plagiarismdetection;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+/**
+ * Abstract class for Plagiarism detectors.
+ * 
+ * @author Amirreza Shaban
+ */
 
 public abstract class PlagiarismDetector {
 
@@ -55,7 +62,7 @@ public abstract class PlagiarismDetector {
 		}
 	}
 
-	/* adds the base file to the repository */
+	/* adds a base file to the repository */
 	public void addBaseFile(File file) {
 		this.baseFiles.add(file);
 	}
@@ -67,6 +74,11 @@ public abstract class PlagiarismDetector {
 		}
 		this.sourceMap.put(name, files);
 	}
+	
+	public void addStudentFiles(String name, List<File> files) {
+		this.sourceMap.put(name, files.toArray(new File[files.size()]));
+	}
+	
 
 	/* delete the repository */
 	public void reset() {
