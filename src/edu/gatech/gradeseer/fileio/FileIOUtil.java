@@ -58,7 +58,7 @@ public class FileIOUtil {
 	 */
 	public static boolean decompress(File compressed, File decompressTo) throws IOException {
 		if (compressed.getName().endsWith(".rar")) {
-			throw new UnsupportedOperationException("Cannot extract rar yet.");
+			throw new UnsupportedOperationException("Cannot extract rar yet, file: " + compressed.getAbsolutePath());
 		}
 		ProcessBuilder builder = null;
 		if (compressed != null && compressed.getName().endsWith(".zip")) {

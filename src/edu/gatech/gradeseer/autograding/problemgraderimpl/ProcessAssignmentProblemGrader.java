@@ -43,6 +43,12 @@ public abstract class ProcessAssignmentProblemGrader extends DirectoryAssignment
 	@Override
 	public double gradeCopiedFiles(Assignment assignment, AssignmentProblem problem, AssignmentSubmission submission,
 			List<File> files) {
+		if (files.size() < assignment.getFileNames().size()) {
+			if (submission.getComments().size() < 1)
+				submission.addToComments("Did not submit enough files (only " + submission.getSubmissionFiles().size()
+						+ "), skipping.");
+			return 0;
+		}
 		ProcessBuilder builder = this.getProcessBuilder(assignment, problem, submission, files);
 		builder.directory(super.gradingDirectory);
 		File logOut = new File(submission.getSubmissionDirectory(), "out" + problem.getName() + ".txt");

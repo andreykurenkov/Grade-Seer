@@ -15,7 +15,7 @@ import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
  * 
  * @author Andrey Kurenkov
  */
-public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrader {
+public class CS3600PacmanAssignmentProblemGrader extends ProcessAssignmentProblemGrader {
 
 	/**
 	 * 
@@ -23,7 +23,7 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 	 * @param timeLimit
 	 * @param outputToFile
 	 */
-	public CS3600AssignmentProblemGrader(File dir, double timeLimit, boolean outputToFile) {
+	public CS3600PacmanAssignmentProblemGrader(File dir, double timeLimit, boolean outputToFile) {
 		super(dir, timeLimit, outputToFile);
 	}
 
@@ -38,7 +38,7 @@ public class CS3600AssignmentProblemGrader extends ProcessAssignmentProblemGrade
 	@Override
 	public ProcessBuilder getProcessBuilder(Assignment assignment, AssignmentProblem problem,
 			AssignmentSubmission submission, List<File> files) {
-		return new ProcessBuilder("python", "autograder.py", "-q", problem.getName());
+		return new ProcessBuilder("python", "autograder.py", "-q", problem.getName(), "--no-graphics");
 	}
 
 	/*

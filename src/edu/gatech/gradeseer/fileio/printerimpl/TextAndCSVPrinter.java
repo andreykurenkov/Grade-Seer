@@ -68,12 +68,12 @@ public class TextAndCSVPrinter implements AssignmentGradingFilePrinter {
 			build.append(",");
 		}
 		build.append(toFormat.getTotal() + ",");
+		build.append(Arrays.toString(toFormat.getComments().toArray()).replace(',', '|').replaceAll("[|]", ""));
 		for (AssignmentProblem problem : forAssignment.getProblems()) { // TODO error check for it being there
+			build.append(",");
 			build.append(Arrays.toString(toFormat.getProblemComments(problem).toArray()).replace(',', '|')
 					.replaceAll("[|]", ""));
-			build.append(",");
 		}
-		build.append(Arrays.toString(toFormat.getComments().toArray()).replace(',', '|').replaceAll("[|]", ""));
 		return build.toString();
 
 	}

@@ -87,9 +87,13 @@ public class MOSS extends PlagiarismDetector {
 
 		Set<String> keySet = this.sourceMap.keySet();
 		for (String name : keySet) {
-			File[] files = this.sourceMap.get(name);
-			for (File file : files) {
-				sourceFiles.add(new VirtualFile(name + "/" + file.getName(), file));
+			try {
+				File[] files = this.sourceMap.get(name);
+				for (File file : files) {
+					sourceFiles.add(new VirtualFile(name + "/" + file.getName(), file));
+				}
+			} catch (NullPointerException e) {
+				System.err.println("Null pointer " + name + " " + e.getLocalizedMessage());
 			}
 		}
 

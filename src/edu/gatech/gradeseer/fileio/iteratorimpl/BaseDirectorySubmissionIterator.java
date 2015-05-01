@@ -1,6 +1,8 @@
 package edu.gatech.gradeseer.fileio.iteratorimpl;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 
 import edu.gatech.gradeseer.gradingmodel.AssignmentSubmission;
@@ -26,8 +28,32 @@ public abstract class BaseDirectorySubmissionIterator implements CloneableSubmis
 	 *            The naming format for student submissions folders
 	 */
 	public BaseDirectorySubmissionIterator(File dir) {
+		this(dir, true);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param dir
+	 *            The directory to look for student submissions
+	 * @param sort
+	 *            Whether to sort the list of students
+	 * @param studentDirRegex
+	 *            The naming format for student submissions folders
+	 */
+	public BaseDirectorySubmissionIterator(File dir, boolean sort) {
 		this.baseDir = dir;
 		dirFiles = dir.listFiles();
+		if (sort) {
+			Arrays.sort(dirFiles, new Comparator<File>() {
+
+				@Override
+				public int compare(File f1, File f2) {
+					return f1.getName().compareTo(f2.getName());
+				}
+
+			});
+		}
 		atFile = 0;
 	}
 

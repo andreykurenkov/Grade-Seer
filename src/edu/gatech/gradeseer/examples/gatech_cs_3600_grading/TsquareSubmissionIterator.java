@@ -68,7 +68,7 @@ public class TsquareSubmissionIterator extends BaseDirectorySubmissionIterator {
 		AssignmentSubmission submission = new AssignmentSubmission(new Student(studentName, null));
 		submission.setSubmissionFiles(FileIOUtil.recursiveFileFind(filesDir, new FileNameFilter(assignment.getFileNames()),
 				true, true));
-		submission.setSubmissionDirectory(dir);
+		submission.setSubmissionDirectory(filesDir);
 		return submission;
 	}
 

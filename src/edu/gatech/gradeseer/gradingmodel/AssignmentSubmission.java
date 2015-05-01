@@ -18,12 +18,12 @@ public class AssignmentSubmission {
 	private HashMap<AssignmentProblem, List<String>> problemComments;
 	private HashMap<AssignmentProblem, Double> grades;
 	private double total;
-	private List<File> submissionFiles;
+	private HashMap<String, File> submissionFiles;
 	private File submissionDirectory;
 
 	public AssignmentSubmission(Student student) {
 		this.student = student;
-		this.submissionFiles = new ArrayList<File>();
+		this.submissionFiles = new HashMap<String, File>();
 		this.grades = new HashMap<AssignmentProblem, Double>();
 		this.problemComments = new HashMap<AssignmentProblem, List<String>>();
 		this.comments = new ArrayList<String>();
@@ -67,15 +67,15 @@ public class AssignmentSubmission {
 	}
 
 	public void addFile(File toAdd) {
-		if (toAdd != null && !submissionFiles.contains(toAdd))
-			this.submissionFiles.add(toAdd);
+		if (toAdd != null)
+			this.submissionFiles.put(toAdd.getName(), toAdd);
 	}
 
-	public void setSubmissionFiles(List<File> setTo) {
+	public void setSubmissionFiles(HashMap<String, File> setTo) {
 		submissionFiles = setTo;
 	}
 
-	public List<File> getSubmissionFiles() {
+	public HashMap<String, File> getSubmissionFiles() {
 		return submissionFiles;
 	}
 
@@ -85,5 +85,23 @@ public class AssignmentSubmission {
 
 	public void setSubmissionDirectory(File submissionDirectory) {
 		this.submissionDirectory = submissionDirectory;
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public File getSubmissionFile(String name) {
+		if (!submissionFiles.containsKey(name))
+			return null;
+		return submissionFiles.get(name);
+	}
+
+	public void setSubmissionFiles(List<File> fileList) {
+		HashMap<String, File> files = new HashMap<String, File>();
+		for (File file : fileList) {
+			files.put(file.getName(), file);
+		}
+		setSubmissionFiles(files);
 	}
 }
