@@ -8,31 +8,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
-
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
 /**
  * An extension of Java's File class that provides various utility methods. This is meant to be used in conjunction with an
  * existing File object or as a new File object with more functionality.
  * 
  * @author Andrey Kurenkov
- * @version 1.1
+ * @version 1.75
  * 
  */
 @SuppressWarnings("serial")
@@ -46,9 +31,11 @@ public class SmartFile extends File {
 	 * 
 	 * @param path
 	 *            path to file
+	 * @throws IOException
 	 */
-	public SmartFile(String path) {
+	public SmartFile(String path) throws IOException {
 		super(path);
+		throwIfInvalid();
 	}
 
 	/**
@@ -56,9 +43,11 @@ public class SmartFile extends File {
 	 * 
 	 * @param path
 	 *            path to file
+	 * @throws IOException
 	 */
-	public SmartFile(URI path) {
+	public SmartFile(URI path) throws IOException {
 		super(path);
+		throwIfInvalid();
 	}
 
 	/**
@@ -68,9 +57,11 @@ public class SmartFile extends File {
 	 *            path to file
 	 * @param child
 	 *            the child file to the parent (usually file within parent directory)
+	 * @throws IOException
 	 */
-	public SmartFile(File parent, String child) {
+	public SmartFile(File parent, String child) throws IOException {
 		super(parent, child);
+		throwIfInvalid();
 	}
 
 	/**
@@ -78,9 +69,31 @@ public class SmartFile extends File {
 	 * 
 	 * @param path
 	 *            path to file
+	 * @throws IOException
 	 */
-	public SmartFile(File f) {
+	public SmartFile(File f) throws IOException {
 		this(f.getAbsolutePath());
+		throwIfInvalid();
+	}
+
+	/**
+	 * Checks that the file exists and be overriden for specific standards.
+	 * 
+	 * @return true if exists, false otherwise.
+	 */
+	protected boolean isValid() {
+		return this.exists();
+	}
+
+	/**
+	 * Included in all SmartFile constructors to allow subclasses easy checking for validity.
+	 * 
+	 * @throws IOException
+	 */
+	protected void throwIfInvalid() throws IOException {
+		if (!isValid()) {
+			throw new IOException("This file does not exist or is not the right format.");
+		}
 	}
 
 	/**
@@ -93,46 +106,10 @@ public class SmartFile extends File {
 	}
 
 	/**
-	 * Returns if the File is compilable (currently only supports Java compilation)
-	 * 
 	 * @return true if a java file
 	 */
-	public boolean isCompilable() {
+	public boolean isJavaFile() {
 		return this.getName().endsWith(".java");
-	}
-
-	/**
-	 * Determines if the file is runnable
-	 * 
-	 * @return true if a .class file with a main method
-	 */
-	public boolean isRunnable() {
-		String name = this.getName();
-		int index = 0;
-		if ((index = name.indexOf('.')) <= 0)
-			return false;
-		if (!name.substring(index).equals(".class"))
-			return false;
-		try {
-			URL[] load = { new File(this.getAbsolutePath().substring(0, this.getAbsolutePath().indexOf(this.getName())))
-					.toURI().toURL() };
-			URLClassLoader loader = new URLClassLoader(load);
-			Class<?> myClass = loader.loadClass(this.getNonExtensionName());
-			myClass.getMethod("main", String[].class);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();// TODO: proper error-handling
-			return false;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		} catch (SecurityException e) {
-			e.printStackTrace();
-			return false;
-		} catch (NoSuchMethodException e) {
-			return false;
-		}
-		return true;
-
 	}
 
 	/**
@@ -173,38 +150,6 @@ public class SmartFile extends File {
 	}
 
 	/**
-	 * If the File is runnable, runs the file and returns its Process.
-	 * 
-	 * @return the Process instance that results from running the file, or null if it is not runnable or there are errors
-	 */
-	public Process run() {
-		if (this.isRunnable()) {
-			ProcessBuilder builder = getRunProcessBuilder();
-			try {
-				Process runningProcess = builder.start();
-				return runningProcess;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns a ProcessBuilder that would allow other code to start running this file.
-	 * 
-	 * @return return ProcessBuilder for file, or null if not runnable
-	 */
-	public ProcessBuilder getRunProcessBuilder() {
-		if (this.isRunnable()) {
-			ProcessBuilder builder = new ProcessBuilder("java", this.getNonExtensionName());
-			builder.directory(this.getDirectory().getAbsoluteFile());
-			return builder;
-		}
-		return null;
-	}
-
-	/**
 	 * If the File is an html file, runs the file with appletviewer and returns its Process.
 	 * 
 	 * @return the Process instance that results from running the file, or null if it is not html or there are errors
@@ -235,155 +180,6 @@ public class SmartFile extends File {
 			return builder;
 		}
 		return null;
-	}
-
-	/**
-	 * Tried to compile file and returns a boolean to indicate success.
-	 * 
-	 * @return true if success in compiling, false otherwise
-	 */
-	public String compile() {
-		return this.compile(null);
-	}
-
-	/**
-	 * Tried to compile file and returns a boolean to indicate success. Also writes all io/status info to the provided
-	 * Writer.
-	 * 
-	 * @param writer
-	 *            output writer
-	 * @return true if success in compiling, false otherwise
-	 */
-	public String compile(Writer writer) {
-		if (this.isCompilable()) {
-			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-			if (compiler == null) {// if null do something else like basically
-				// command line
-				ProcessBuilder builder = new ProcessBuilder("javac", this.getName());
-				builder.directory(this.getDirectory().getAbsoluteFile());
-				try {
-					Process compile = builder.start();
-					return (compile.waitFor() == 0) ? null : ERROR;
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-			StandardJavaFileManager fm = compiler.getStandardFileManager(diagnostics, null, null);
-			List<File> dir = new ArrayList<File>();
-			dir.add(getParentFile());
-			try {
-				fm.setLocation(StandardLocation.CLASS_PATH, dir);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			ArrayList<File> file = new ArrayList<File>(1);
-			file.add(this);
-			JavaCompiler.CompilationTask task = null;
-			task = compiler.getTask(writer, fm, diagnostics, null, null, fm.getJavaFileObjectsFromFiles(file));
-
-			boolean success = task.call();
-			if (success) {
-				return null;
-			} else {
-				StringBuilder message = new StringBuilder();
-				for (Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics()) {
-					message.append(d.toString());
-					try {
-						if (writer != null) {
-							writer.append(d.toString());
-							writer.flush();
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				return message.toString();
-			}
-		} else
-			return NOT_COMPILABLE;
-	}
-
-	/**
-	 * Utility method to compile a batch of SmartFiles at once.
-	 * 
-	 * @param writer
-	 *            the writer to output info to
-	 * @param files
-	 *            any number of SmartFile to compile
-	 * @return true if all compiled, false otherwise
-	 */
-	public static String compile(Writer writer, SmartFile... files) {
-		ArrayList<SmartFile> arrayFiles = new ArrayList<SmartFile>();
-		for (SmartFile file : files)
-			arrayFiles.add(file);
-		return compile(arrayFiles, writer);
-	}
-
-	/**
-	 * A method to compile many SmartFiles together (can be more efficient than doing so one by one, though not
-	 * significantly)
-	 * 
-	 * @param files
-	 *            all files to compile
-	 * @param writer
-	 *            the writer to output into to
-	 * @return true if all compiled
-	 */
-	public static String compile(ArrayList<SmartFile> files, Writer writer) {
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		if (compiler == null) {
-			StringBuilder errors = new StringBuilder();
-			for (SmartFile file : files) {
-				String error = file.compile(writer);
-				if (error != null)
-					errors.append("\n" + error);
-			}
-			String error = errors.toString();
-			if (error.length() == 0)
-				return null;
-			return errors.toString();
-		}
-
-		List<File> dir = new ArrayList<File>();
-		for (SmartFile sm : files) {
-			if (!sm.isCompilable())
-				return NOT_COMPILABLE;
-			else {
-				dir.add(sm.getParentFile());
-			}
-		}
-
-		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-		StandardJavaFileManager fm = compiler.getStandardFileManager(diagnostics, Locale.ENGLISH, Charset.defaultCharset());
-
-		try {
-			fm.setLocation(StandardLocation.CLASS_PATH, dir);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		JavaCompiler.CompilationTask task = null;
-		task = compiler.getTask(writer, fm, diagnostics, null, null, fm.getJavaFileObjectsFromFiles(files));
-		boolean success = task.call();
-		if (success) {
-			return null;
-		} else {
-			StringBuilder message = new StringBuilder();
-			for (Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics()) {
-				message.append(d.toString());
-				try {
-					if (writer != null) {
-						writer.append(d.toString());
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			return message.toString();
-		}
 	}
 
 	/**
@@ -441,10 +237,14 @@ public class SmartFile extends File {
 	 * @return array of converted SmartFile objects
 	 */
 	public static SmartFile[] makeSmarter(File... stupid) {
-		SmartFile[] smart = new SmartFile[stupid.length];
+		ArrayList<SmartFile> smart = new ArrayList<SmartFile>();
 		for (int i = 0; i < stupid.length; i++)
-			smart[i] = new SmartFile(stupid[i].getAbsolutePath());
-		return smart;
+			try {
+				smart.add(new SmartFile(stupid[i].getAbsolutePath()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return smart.toArray(new SmartFile[smart.size()]);
 	}
 
 	/**
@@ -481,7 +281,30 @@ public class SmartFile extends File {
 	public SmartFile getDirectory() {
 		if (this.isDirectory())
 			return this;
-		return new SmartFile(getParentFile());
+		try {
+			return new SmartFile(getParentFile());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static boolean checkRightExtension(File file, String wantedExten) {
+		try {
+			SmartFile sfile = new SmartFile(file);
+			return sfile.getExtension().equals(wantedExten);
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if the file is a .csv file
+	 * 
+	 * @return true if ends with .csv
+	 */
+	public boolean isCsv() {
+		return this.getExtension(true).equals(".csv");
 	}
 
 	/**
@@ -508,7 +331,7 @@ public class SmartFile extends File {
 	 * @return true if txt html or java file
 	 */
 	public boolean isReadable() {
-		return this.isTxt() || this.isHtml() || this.isCompilable();
+		return isCsv() || isTxt() || isHtml() || isJavaFile();
 	}
 
 }
