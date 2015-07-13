@@ -1,4 +1,4 @@
-A simple Java open source grading framework with a command line or GUI interface that assists with batch autograding, manual grading, or plagiarism detection. 
+A simple Java open source grading framework with a command line or GUI interface that assists with batch autograding, manual grading, or plagiarism detection. Comes with as an Eclipse project you can directly import - no simple executable at present.
 
 The batch autograding and plagiarism detection is the latest development, and is a pretty simple but useful way to launch a grading program to iterate over student directories and grade submissions or check them for plagiarism. The example package should make it clear how the code can be used - due to using Interfaces and Abstract classes, it is quite flexible. 
 
